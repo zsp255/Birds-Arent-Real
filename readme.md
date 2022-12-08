@@ -1,4 +1,4 @@
-This is our porject for CS23218.
+This is our project for CS23218.
 Zach Yifan Aarthi
 
 Dependencies:
