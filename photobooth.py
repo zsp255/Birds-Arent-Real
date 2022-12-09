@@ -4,9 +4,22 @@ import time
 import numpy as np
 # from goprocam import GoProCamera
 # from goprocam import constants
+<<<<<<< Updated upstream
 
 import PIL
 from PIL import Image, ImageOps, ImageDraw, ImageFont
+=======
+from PIL import Image, ImageOps, ImageDraw, ImageFont
+
+#### Send email window
+import tkinter as tk # GUI
+import smtplib  # Mail server 
+import ssl  # Mail encryption 
+from email.mime.application import MIMEApplication  # Mail message
+from email.mime.text import MIMEText    # Mail message
+from email.mime.multipart import MIMEMultipart  # Mail message
+
+>>>>>>> Stashed changes
 
 #gopro1 = GoProCamera.GoPro(constants.gpcontrol)
 #gopro1.mode(constants.Mode.PhotoMode)
@@ -17,14 +30,21 @@ strip_columns = 1
 strip_width = 300
 strip_height = 750
 
+<<<<<<< Updated upstream
 column_grayscale = (0, 1)
+=======
+>>>>>>> Stashed changes
 strip = Image.new('RGB', (strip_width, strip_height), (255,255,255))
 row_gutter = 15
 column_gutter = 10
 target_height = int((strip_height - ((strip_rows + 1) * row_gutter)) / strip_rows)
 target_width = int((strip_width-20 - ((strip_columns - 1) * column_gutter)) / strip_columns)
 
+<<<<<<< Updated upstream
 ### Helper functionss
+=======
+### Helper functions
+>>>>>>> Stashed changes
 def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     dim = None
     (h, w) = image.shape[:2]
@@ -87,6 +107,7 @@ while True:
         else:
             if img_saved:
                 # # ### Load images & show images in multiple new small windows to populate the screen 
+<<<<<<< Updated upstream
                 for row in range(strip_rows):
                     # PIL 
                     image = get_image()
@@ -107,6 +128,9 @@ while True:
                 font = ImageFont.truetype("Chalkduster.ttf", 1)
                 I1.text((242, 739), "12.9.2022", fill=(255, 0, 0))
                 strip.show()
+=======
+
+>>>>>>> Stashed changes
                 img_saved = False
                 # break
 
@@ -127,7 +151,11 @@ while True:
             time_stamp = time.time()
             ### Saving the image
             img_name = "opencv_frame_{}.jpeg".format(img_counter)
+<<<<<<< Updated upstream
             cv2.imwrite(img_name, frame_flipped)
+=======
+            cv2.imwrite(img_name, frame_no_text)
+>>>>>>> Stashed changes
             # my_img_1 = np.zeros((512, 512, 1), dtype = "uint8")   # Black image placeholder
 
             ### Save go pro pic
@@ -139,9 +167,46 @@ while True:
         else:   
             ### If time_stamp is on, refresh time_stamp
             time_stamp = time.time()
+<<<<<<< Updated upstream
     
+=======
+>>>>>>> Stashed changes
 cam.release()
+cv2.destroyWindow("test_flipped")
 
+
+for row in range(strip_rows):
+    # PIL 
+    image = Image.open('opencv_frame_0.jpeg')
+    if row == 3:
+        image = Image.open('assets/slogan.jpeg')
+    
+    # Scale/crop the image to fit our desired width/height.
+    image = ImageOps.fit(image, (target_width, target_height))
+    
+    y = (row * target_height) + ((row+1) * row_gutter)
+    
+    x = 10
+    strip.paste(image, (x,y))
+
+# Show the strip to the user, this is where you'd put print/save code as well.
+# Add Text to an image
+
+##### Open the strip
+
+I1 = ImageDraw.Draw(strip)
+font = ImageFont.truetype("Chalkduster.ttf", 1)
+I1.text((238, 737), "12.9.2022", fill=(255, 0, 0))
+strip.save("photostrip.jpeg")
+strip.show()
+
+os.system("python3 tkinter_send_mail.py")
+
+# CTX = ssl.create_default_context()
+# PWD = "pfsakavhmoalgkbr"    # Your app PWD goes here
+# SENDER = "realbirdproject@gmail.com"    # Your e-mail address
+
+<<<<<<< Updated upstream
 ### Remove all saved images upon exiting
 for img in os.listdir('./'):
             if img.endswith('.png'):
@@ -149,3 +214,6 @@ for img in os.listdir('./'):
 print("Images removed, closing...")
 
 cv2.destroyAllWindows()
+=======
+### Main Program
+>>>>>>> Stashed changes
