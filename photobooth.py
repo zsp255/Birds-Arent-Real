@@ -2,11 +2,27 @@ import cv2
 import os
 import time
 import numpy as np
-from goprocam import GoProCamera
-from goprocam import constants
+# from goprocam import GoProCamera
+# from goprocam import constants
+
+import PIL
+from PIL import Image, ImageOps, ImageDraw, ImageFont
 
 #gopro1 = GoProCamera.GoPro(constants.gpcontrol)
 #gopro1.mode(constants.Mode.PhotoMode)
+
+### Global variables for photostrip
+strip_rows = 4
+strip_columns = 1
+strip_width = 300
+strip_height = 750
+
+column_grayscale = (0, 1)
+strip = Image.new('RGB', (strip_width, strip_height), (255,255,255))
+row_gutter = 15
+column_gutter = 10
+target_height = int((strip_height - ((strip_rows + 1) * row_gutter)) / strip_rows)
+target_width = int((strip_width-20 - ((strip_columns - 1) * column_gutter)) / strip_columns)
 
 ### Helper functionss
 def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
@@ -26,12 +42,19 @@ def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
 # Ref
 # https://stackoverflow.com/questions/35180764/opencv-python-image-too-big-to-display
 
+
 ### Style
 FONT = cv2.FONT_HERSHEY_DUPLEX
 
 
 ### Main Program
 cam = cv2.VideoCapture(0)
+
+def get_image():
+  retval, image = cam.read()
+  image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+  image = Image.fromarray(image)
+  return image
 
 # cv2.namedWindow("test")
 cv2.namedWindow("test_flipped")
@@ -63,47 +86,48 @@ while True:
             cv2.imshow("test_flipped", frame_flipped)   # 1
         else:
             if img_saved:
-                # ### Load images & show images in multiple new small windows to populate the screen 
-                # my_img_1 = cv2.imread(img_name)
-                # my_img_1  = ResizeWithAspectRatio(my_img_1 , width=400) # Resize to window size
-                # window_name = "image_{}".format(img_counter)
-                # cv2.namedWindow(window_name)
-                # cv2.moveWindow(window_name, (img_counter%4)*350,(img_counter%4)*200)
-                # cv2.imshow(window_name, my_img_1)
-                # img_saved = False    
+                # # ### Load images & show images in multiple new small windows to populate the screen 
+                for row in range(strip_rows):
+                    # PIL 
+                    image = get_image()
+                    if row == 3:
+                        image = Image.open('assets/slogan.jpeg')
+                    
+                    # Scale/crop the image to fit our desired width/height.
+                    image = ImageOps.fit(image, (target_width, target_height))
+                    
+                    y = (row * target_height) + ((row+1) * row_gutter)
+                    
+                    x = 10
+                    strip.paste(image, (x,y))
 
-                ### Basic photobooth function - show pic after end of count down
-                img_name = "opencv_frame_{}.png".format(img_counter)
-                cv2.imwrite(img_name, frame_no_text)
-                my_img_1  = ResizeWithAspectRatio(frame_no_text , width=400) # Resize to window size
-                window_name = "image_{}".format(img_counter)
-                cv2.namedWindow(window_name)
-                cv2.moveWindow(window_name, (img_counter%4)*350,(img_counter%4)*200)
-                cv2.imshow(window_name, my_img_1)
-
-                img_saved = False                     
+                # Show the strip to the user, this is where you'd put print/save code as well.
+                # Add Text to an image
+                I1 = ImageDraw.Draw(image)
+                font = ImageFont.truetype("Chalkduster.ttf", 1)
+                I1.text((242, 739), "12.9.2022", fill=(255, 0, 0))
+                strip.show()
+                img_saved = False
+                # break
 
             time_stamp = None
+            break
 
     k = cv2.waitKey(1)
     if k%256 == 27:
         ### ESC pressed
         print("Escape hit, removing images taken")
-        ### Remove all saved images upon exiting
-        for img in os.listdir('./'):
-            if img.endswith('.png'):
-                os.remove(img) 
-        print("Images removed, closing...")
+
         break
-    elif k%256 == 32:   
+    elif k%256 == 32: 
         ### SPACE pressed --> birds start taking pic, assign time stamp & start count down
 
         if not time_stamp:
             ### Saving time stamp
             time_stamp = time.time()
             ### Saving the image
-            # img_name = "opencv_frame_{}.png".format(img_counter)
-            # cv2.imwrite(img_name, frame_flipped)
+            img_name = "opencv_frame_{}.jpeg".format(img_counter)
+            cv2.imwrite(img_name, frame_flipped)
             # my_img_1 = np.zeros((512, 512, 1), dtype = "uint8")   # Black image placeholder
 
             ### Save go pro pic
@@ -117,5 +141,11 @@ while True:
             time_stamp = time.time()
     
 cam.release()
+
+### Remove all saved images upon exiting
+for img in os.listdir('./'):
+            if img.endswith('.png'):
+                os.remove(img) 
+print("Images removed, closing...")
 
 cv2.destroyAllWindows()
