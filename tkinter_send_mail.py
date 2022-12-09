@@ -42,7 +42,7 @@ def send_email():
     ### Attach message body content
     message.attach(MIMEText("Hello from Real Birds", "plain"))
 
-    ### Attach image    
+    ## Attach image    
     filename = "photostrip.jpeg"
                                         # We should generate an image with GoPro pics & OpenCV & send it to user
     with open(filename, "rb") as f:
@@ -51,13 +51,15 @@ def send_email():
     file.add_header("Content-Disposition", disposition)
     message.attach(file)
 
-    ### If not sending plain text, use 'message.as_string()'
+    ## If not sending plain text, use 'message.as_string()'
     with smtplib.SMTP_SSL("smtp.gmail.com", port=465, context=CTX) as server:
         server.login(SENDER, PWD)
         server.sendmail(SENDER, receiver, message.as_string())
     
     label3 = tk.Label(root, text='Email sent!', font=('helvetica', 8))
     canvas1.create_window(150, 92, window=label3) 
+
+    root.after(2000,lambda:root.destroy())
 
     ### Remove all saved images upon exiting
     for img in os.listdir('./'):
