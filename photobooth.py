@@ -91,9 +91,9 @@ while True:
                 im = Image.open("testgp.jpg")
 
                 img_saved = False
-
+                break
             time_stamp = None
-            break
+            #break
 
     k = cv2.waitKey(1)
     if k%256 == 27:
@@ -149,11 +149,18 @@ print("socket open")
 
 client_socket, client_address = server.accept()
 
-msg_rec = client_socket.recv(1024)
-msg_rec = msg_rec.decode()
+file = open("server_image.jpg", 'wb')
+
+image_chunk = client_socket.recv(2048)
+
+while image_chunk:
+    file.write(image_chunk)
+    image_chunk = client_socket.recv(2048)
 
 # if msg_rec == "ready":
 #     urllib.request.urlretrieve("http://10.150.66.178:8000/readme.md", "readme_download.md")
-# client_socket.close() 
+
+file.close()
+client_socket.close() 
     
 
