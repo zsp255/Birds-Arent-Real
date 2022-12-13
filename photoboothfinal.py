@@ -58,7 +58,10 @@ while True:
             cv2.putText(frame_flipped,'1',(500,300), FONT, 10,(233,255,255),5,cv2.LINE_AA)
             cv2.imshow("test_flipped", frame_flipped)   # 1
         else:
+            img_name = "opencv_frame_0.jpg".format(img_counter)
+            cv2.imwrite(img_name, frame_no_text)
             ### Prompt the go pro to take picture
+            print("taking photo")
             tmp = gopro1.take_photo()
             print("gp photo taken")
             urllib.request.urlretrieve(tmp, "testgp.jpg")
@@ -72,12 +75,13 @@ while True:
         print("Escape hit, removing images taken")
         ### Remove all saved images upon exiting
         for img in os.listdir('./'):
-            if img.endswith('.png'):
+            if img.endswith('.jpg'):
                 os.remove(img) 
         print("Images removed, closing...")
         break
     elif k%256 == 32:   
         ### SPACE pressed --> birds start taking pic, assign time stamp & start count down
+
         if not time_stamp:
             ### Saving time stamp
             time_stamp = time.time()
@@ -98,14 +102,14 @@ os.system("networksetup -setairportnetwork en0 AK hello123")
 print("switched network")
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('172.20.10.8', 8080))
+server.bind(('172.20.10.7', 8080))
 server.listen()
 
 print("socket open")
 
 client_socket, client_address = server.accept()
 
-file = open("server_image.jpg", 'wb')
+# file = open("server_image.jpg", 'wb')
 
 image_chunk = client_socket.recv(2048)
 
@@ -113,14 +117,14 @@ while image_chunk:
     file.write(image_chunk)
     image_chunk = client_socket.recv(2048)
 
-# if msg_rec == "ready":
-#     urllib.request.urlretrieve("http://10.150.66.178:8000/readme.md", "readme_download.md")
+if msg_rec == "ready":
+    urllib.request.urlretrieve("http://10.150.66.178:8000/readme.md", "readme_download.md")
 
 file.close()
 client_socket.close()    
 
 
-image = Image.open("opencv_frame_1.jpg")
+image = Image.open("opencv_frame_0.jpg")
 # image = Image.open("assets/slogan.jpeg")
 image = ImageOps.fit(image, (target_width, target_height))
 y = (0 * target_height) + ((0+1) * row_gutter)
@@ -128,14 +132,14 @@ x = 10
 strip.paste(image, (x,y))
 
 image = Image.open("testgp.jpg")
-# image = Image.open("assets/slogan.jpeg")
+# image = Image.open("assets/slogan.jpeg")s
 image = ImageOps.fit(image, (target_width, target_height))
 y = (1 * target_height) + ((1+1) * row_gutter)
 x = 10
 strip.paste(image, (x,y))
 
 image = Image.open("server_image.jpg")
-# image = Image.open("assets/slogan.jpeg")
+image = image.rotate(270)
 image = ImageOps.fit(image, (target_width, target_height))
 y = (2 * target_height) + ((2+1) * row_gutter)
 x = 10
@@ -147,7 +151,7 @@ y = (3 * target_height) + ((3+1) * row_gutter)
 x = 10
 strip.paste(image, (x,y))
                     
-I1 = ImageDraw.Draw(image)
+I1 = ImageDraw.Draw(strip)
 font = ImageFont.truetype("Chalkduster.ttf", 1)
 I1.text((238, 737), "12.9.2022", fill=(255, 0, 0))
 strip.save("photostrip.jpeg")

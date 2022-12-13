@@ -59,13 +59,13 @@ def send_email():
     label3 = tk.Label(root, text='Email sent!', font=('helvetica', 8))
     canvas1.create_window(150, 92, window=label3) 
 
-    root.after(3000,lambda:root.destroy())
+    # root.after(3000,lambda:root.destroy())
 
     ### Remove all saved images upon exiting
-    for img in os.listdir('./'):
-        if img.endswith('.jpeg'):
-            os.remove(img) 
-    print("Images removed, closing...")
+    # for img in os.listdir('./'):
+    #     if img.endswith('.jpg') or img.endswith('.jpeg'):
+    #         os.remove(img) 
+    # print("Images removed, closing...")
     
 button1 = tk.Button(text='Send', command=send_email, bg='brown', fg='black', font=('helvetica', 11, 'bold'))
 canvas1.create_window(150, 110, window=button1)
